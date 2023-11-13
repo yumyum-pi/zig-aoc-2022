@@ -9,6 +9,8 @@ pub fn build(b: *std.Build) void {
     const target = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{});
 
+    const utils_modules = b.addModule("utils", .{ .source_file = .{ .path = "src/utils.zig" } });
+
     for (day_start..day_end) |day_number| {
         const day_string = b.fmt("day{:0>2}", .{day_number});
         const source_file_path = b.fmt("src/{s}/main.zig", .{day_string});
@@ -35,6 +37,7 @@ pub fn build(b: *std.Build) void {
             .optimize = optimize,
         });
 
+        exe.addModule("utils", utils_modules);
         // create install artifact for each day
         b.installArtifact(exe);
 
