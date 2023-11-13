@@ -11,7 +11,7 @@ pub fn build(b: *std.Build) void {
 
     for (day_start..day_end) |day_number| {
         const day_string = b.fmt("day{:0>2}", .{day_number});
-        const source_file_path = b.fmt("src/2022/{s}/main.zig", .{day_string});
+        const source_file_path = b.fmt("src/{s}/main.zig", .{day_string});
         const exe_name = b.fmt("aoc-{s}", .{day_string});
 
         // check if file exist
