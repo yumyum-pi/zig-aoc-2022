@@ -6,7 +6,7 @@ const CharReaderErr = error{
 };
 
 const LINEBREAK: u8 = 10;
-pub fn solve(input: []const u8) !u64 {
+pub fn solution(input: []const u8) !u64 {
     var sum: u64 = 0;
     var calarise: u64 = 0;
     var char_len: u8 = 0;
