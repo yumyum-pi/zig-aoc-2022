@@ -27,3 +27,5 @@ pub const ASCII = ascii_struct{ .Numbers = RangeU8{
 pub fn Char_to_int(char: u8) u64 {
     return @intCast(char - ASCII.Numbers.Start);
 }
+
+// utf-8 reference: https://www.charset.org/utf-8
