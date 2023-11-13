@@ -10,7 +10,7 @@ const day_end = 24;
 pub fn build(b: *std.Build) void {
     const target = b.standardTargetOptions(.{});
 
-    const mode = MODE.Debug;
+    const mode = MODE.ReleaseFast;
 
     const utils_modules = b.addModule("utils", .{ .source_file = .{ .path = "src/utils.zig" } });
 
@@ -37,8 +37,8 @@ pub fn build(b: *std.Build) void {
             .name = exe_name,
             .root_source_file = .{ .path = source_file_path },
             .target = target,
-            .optimize = mode,
         });
+        exe.optimize = mode;
 
         exe.addModule("utils", utils_modules);
         // create install artifact for each day
