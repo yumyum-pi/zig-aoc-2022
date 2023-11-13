@@ -3,6 +3,10 @@ const print = @import("std").debug.print;
 const fs = std.fs;
 const time = std.time;
 
+const CharReaderErr = error{
+    UnknownChar,
+};
+
 const file_path = "./input";
 const test_file = "/Users/vivekrawat/dev/aoc-zig/2022/day1/test_input";
 
@@ -16,14 +20,12 @@ pub fn main() !void {
     const end_time: f64 = @floatFromInt(time.nanoTimestamp());
     const ns = end_time - start_time;
     const ms = ns / 1000000;
-    print("time taken: {!d}\n", .{ms});
+    print("time taken: {!d}ms\n", .{ms});
     //print("max: {!d}\n", .{max});
 }
 
 const LINEBREAK: u8 = 10;
 pub fn part1(input: []const u8) !u64 {
-    const stdout = std.io.getStdOut().writer();
-    _ = stdout;
     var sum: u64 = 0;
     var calarise: u64 = 0;
     var char_len: u8 = 0;
@@ -51,7 +53,7 @@ pub fn part1(input: []const u8) !u64 {
                 char_len += 1;
             },
             else => {
-                print("unknown charactor: {!}\n", .{char});
+                return CharReaderErr.UnknownChar;
             },
         }
         prev = char;
