@@ -1,4 +1,6 @@
 const std = @import("std");
+const MODE = std.builtin.Mode;
+
 const fs = std.fs;
 const print = std.debug.print;
 
@@ -7,7 +9,8 @@ const day_end = 24;
 
 pub fn build(b: *std.Build) void {
     const target = b.standardTargetOptions(.{});
-    const optimize = b.standardOptimizeOption(.{});
+
+    const mode = MODE.Debug;
 
     const utils_modules = b.addModule("utils", .{ .source_file = .{ .path = "src/utils.zig" } });
 
@@ -34,7 +37,7 @@ pub fn build(b: *std.Build) void {
             .name = exe_name,
             .root_source_file = .{ .path = source_file_path },
             .target = target,
-            .optimize = optimize,
+            .optimize = mode,
         });
 
         exe.addModule("utils", utils_modules);
