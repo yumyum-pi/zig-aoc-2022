@@ -3,8 +3,8 @@ const print = @import("std").debug.print;
 const fs = std.fs;
 const time = std.time;
 
-const solution = @import("./part1.zig").solution;
-//const solution = @import("./part2.zig").solution;
+//const solution = @import("./part1.zig").solution;
+const solution = @import("./part2.zig").solution;
 
 const file_path = "./input";
 const test_file = "test_input";
@@ -16,10 +16,11 @@ pub fn main() !void {
     const start_time: f64 = @floatFromInt(time.nanoTimestamp());
 
     const ans = solution(file);
+    _ = ans;
 
     const end_time: f64 = @floatFromInt(time.nanoTimestamp());
     const ns = end_time - start_time;
     const ms = ns / 1000000;
-    print("time taken: {!d}ms\n", .{ms});
-    print("ans: {!d}\n", .{ans});
+    print("time taken:\t{!d}ms\n", .{ms});
+    //    print("ans: {!d}\n", .{ans});
 }
