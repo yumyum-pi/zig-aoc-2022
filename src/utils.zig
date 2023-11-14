@@ -2,6 +2,7 @@ pub const RangeU8 = struct { Start: u8, End: u8 };
 
 const ascii_struct = struct {
     Numbers: RangeU8,
+    LINEBREAK: u8,
 };
 
 // Function converst string to unsigned int. Using this funtion over string ittrator
@@ -17,10 +18,13 @@ pub fn String_to_int(current: *u64, char: u8, position: u8) void {
     current.* += i;
 }
 
-pub const ASCII = ascii_struct{ .Numbers = RangeU8{
-    .Start = 48,
-    .End = 57,
-} };
+pub const ASCII = ascii_struct{
+    .Numbers = RangeU8{
+        .Start = 48,
+        .End = 57,
+    },
+    .LINEBREAK = 10,
+};
 
 // Function converts ASCII number to unsigned int
 // The caller should make sure the char value is between
