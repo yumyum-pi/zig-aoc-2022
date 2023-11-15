@@ -3,8 +3,8 @@ const print = @import("std").debug.print;
 const fs = std.fs;
 const time = std.time;
 
-const solution = @import("./part1.zig").solution;
-//const solution = @import("./part2.zig").solution;
+//const solution = @import("./part1.zig").solution;
+const solution = @import("./part2.zig").solution;
 
 const file_path = "./input";
 const test_file = "test_input";
