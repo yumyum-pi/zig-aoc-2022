@@ -13,13 +13,13 @@ var file = @embedFile(file_path);
 //var file = @embedFile(test_file);
 
 pub fn main() !void {
-    const start_time: f64 = @floatFromInt(time.nanoTimestamp());
+    const start_time: i128 = time.nanoTimestamp();
 
     const ans = solution(file);
 
-    const end_time: f64 = @floatFromInt(time.nanoTimestamp());
-    const ns = end_time - start_time;
-    const ms = ns / 1000000;
+    const end_time: i128 = time.nanoTimestamp();
+    const delta: f64 = @floatFromInt(end_time - start_time);
+    const ms: f64 = delta / 1000000;
     print("time taken:\t{!d}ms\n", .{ms});
     print("ans: {!d}\n", .{ans});
 }

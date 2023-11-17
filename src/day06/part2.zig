@@ -3,68 +3,107 @@ const std = @import("std");
 const print = std.debug.print;
 const allocator = std.heap.page_allocator;
 
+var window_size: u8 = 4;
+
 pub fn solution(input: []const u8) u64 {
+    const input_len = input.len - 1;
+    var char_freq = [_]i64{0} ** 28;
+    var char: u64 = 0;
+    var collision: i64 = 0;
     var index: u64 = 0;
-    const last_index = input.len - 4;
 
-    // character
-    var char4: [4]u64 = undefined;
-    var char14: [14]u64 = undefined;
+    // initial window
+    while (index < window_size) {
+        char = char_to_az(input[index]);
 
-    // an array of boleans.
-    // the index will be used as a character addrss
-    // unique[0] is a, unique[1] is b.
-    // check is a character exist in the list
-    var unique: [27]bool = undefined;
-    var is_marching: bool = false;
+        // add the char to the char_freq
+        char_freq[char] += 1;
 
-    while (index < last_index) {
-        is_marching = false;
-        @memset(&unique, false);
-
-        for (0..4) |i| {
-            char4[i] = char_to_az(input[index + i]);
-            // if character exist then for loop
-            if (unique[char4[i]]) {
-                // break to the while loop;
-                is_marching = true;
-                break;
-            }
-            unique[char4[i]] = true;
+        // check if char already exists
+        if (char_freq[char] > 1) {
+            collision += 1;
         }
-        if (!is_marching) {
+
+        index += 1;
+    }
+
+    while (index < input_len) {
+        //remove the preview char
+        char = char_to_az(input[index - window_size]);
+
+        if (char_freq[char] > 1) {
+            collision -= 1;
+        }
+        char_freq[char] -= 1;
+
+        // check if char already exists
+
+        // add the char to the char_freq
+        char = char_to_az(input[index]);
+        char_freq[char] += 1;
+
+        if (char_freq[char] > 1) {
+            collision += 1;
+        }
+
+        if (collision == 0) {
             break;
         }
 
         index += 1;
     }
 
-    while (index < last_index) {
-        is_marching = false;
-        @memset(&unique, false);
+    window_size = 14;
+    char_freq = [_]i64{0} ** 28;
+    char = 0;
+    collision = 0;
 
-        for (0..14) |i| {
-            char14[i] = char_to_az(input[index + i]);
-            // if character exist then for loop
-            if (unique[char14[i]]) {
-                // break to the while loop;
-                is_marching = true;
-                break;
-            }
-            unique[char14[i]] = true;
-        }
-        if (!is_marching) {
-            return index + 14;
+    const inital_size = index + window_size;
+    // initial window
+    while (index < inital_size) {
+        char = char_to_az(input[index]);
+
+        // add the char to the char_freq
+        char_freq[char] += 1;
+
+        // check if char already exists
+        if (char_freq[char] > 1) {
+            collision += 1;
         }
 
         index += 1;
     }
 
+    while (index < input_len) {
+        //remove the preview char
+        char = char_to_az(input[index - window_size]);
+
+        if (char_freq[char] > 1) {
+            collision -= 1;
+        }
+        char_freq[char] -= 1;
+
+        // check if char already exists
+
+        // add the char to the char_freq
+        char = char_to_az(input[index]);
+        char_freq[char] += 1;
+
+        if (char_freq[char] > 1) {
+            collision += 1;
+        }
+
+        if (collision == 0) {
+            return index + 1;
+        }
+
+        index += 1;
+    }
+
+    print("unique: {d}\n", .{collision});
+
     return 0;
 }
 fn char_to_az(char: u8) u64 {
-    if (char == 0) {
-        return 0;
-    }
     return char - 96;
 }
