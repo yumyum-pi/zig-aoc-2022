@@ -3,7 +3,8 @@ const std = @import("std");
 const Allocator = std.mem.Allocator;
 const print = std.debug.print;
 
-const t = @import("./types.zig");
+const File_Explorer = @import("./file_explorer.zig").File_Explorer;
+const New_File_Explorer = @import("./file_explorer.zig").New_File_Explorer;
 
 const BUFFER_SIZE = 128;
 
@@ -22,11 +23,11 @@ var char: u8 = 0;
 
 var sum: u64 = 0;
 
-var currentDir: *t.dir = undefined;
 const min_size = 100000;
 
 const root_dir_string: *const []u8 = "/";
 
+var FE: File_Explorer = undefined;
 pub fn solution(input: []const u8) !u64 {
     const buffer = try fba.alloc(u8, BUFFER_SIZE);
     const allocator = std.heap.page_allocator;
@@ -34,13 +35,10 @@ pub fn solution(input: []const u8) !u64 {
 
     input_len = input.len;
 
-    // set the root dir
-    var rootDir: t.dir = t.newDirRoot("/", allocator);
-    //print("root dir ptr: {}\t", .{&rootDir});
-    print("root dir name ptr: {}\n", .{&rootDir.name});
-    currentDir = &rootDir;
-    //print("currentDir: {any}", .{currentDir});
+    // TODO make the root dir
+    // skipped the root dir
     index = 7;
+    FE = New_File_Explorer(allocator, "/");
 
     while (index < input_len) {
         char = input[index];
@@ -71,7 +69,7 @@ pub fn solution(input: []const u8) !u64 {
                     // file size
                     else => {
                         // parse file
-                        //parse_file(buffer, buffer_len);
+                        try parse_file(buffer, buffer_len);
                     },
                 }
                 reset_line(buffer, &buffer_len);
@@ -85,7 +83,8 @@ pub fn solution(input: []const u8) !u64 {
         index += 1;
     }
 
-    //print("data:{s}\nlen:{}, cap:{}\n", .{ dir_list.data, dir_list.len, dir_list.cap });
+    // FE.print_file_list();
+    sum = FE.calcSize();
     return sum;
 }
 
@@ -93,39 +92,31 @@ pub fn solution(input: []const u8) !u64 {
 fn reset_line(buffer: []u8, buffer_len: *u8) void {
     @memset(buffer, 0);
     buffer_len.* = 0;
+
     new_cmd = false;
 }
 
 fn parse_cd(buffer: []u8, buffer_len: u8) !void {
     // $ cd
-    // a way to store this info
+    // handle the back cmd
     if (buffer[5] == 46 and buffer[6] == 46) {
-        print("back \n", .{});
-        currentDir = currentDir.parent.?;
+        FE.back();
         return;
     }
+
+    // cd to dir
     var name = buffer[5..buffer_len];
 
-    // search for the sub dir
-    var subdir = currentDir.sub_dir.get(name);
-
-    print("cd:{s}\n", .{name});
-    // check if sub dir exit
-    currentDir = &subdir.?;
+    FE.cd(name);
 }
 
 fn parse_dir(buffer: []u8, buffer_len: u8, allocator: Allocator) !void {
+    _ = allocator;
     const name = buffer[4..buffer_len];
-    // dir
-    // a way to store this info
-    print("dir:{s}\t", .{name});
-
-    print("current dir ptr: {}\t", .{&currentDir});
-    print("current dir name ptr: {}\n", .{&currentDir.name});
-    try t.addDir(currentDir, name, allocator);
+    try FE.addDir(name);
 }
 
-fn parse_file(buffer: []u8, buffer_len: u8) void {
+fn parse_file(buffer: []u8, buffer_len: u8) !void {
     var c: u8 = 0;
     var i: u8 = 0;
     var position: u8 = 0;
@@ -145,10 +136,9 @@ fn parse_file(buffer: []u8, buffer_len: u8) void {
         i += 1;
     }
 
-    if (size > min_size) {
-        sum += size;
-    }
+    sum += size;
+    const name = buffer[i..buffer_len];
     // 4060174 j
     // a way to store this info
-    print("file:{s} - size:{d}\n", .{ buffer[i..buffer_len], size });
+    try FE.addFile(name, size);
 }

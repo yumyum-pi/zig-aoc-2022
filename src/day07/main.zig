@@ -9,8 +9,8 @@ const solution = @import("./part1.zig").solution;
 const file_path = "./input";
 const test_file = "test_input";
 
-//var file = @embedFile(file_path);
-var file = @embedFile(test_file);
+var file = @embedFile(file_path);
+//var file = @embedFile(test_file);
 
 pub fn main() !void {
     const start_time: i128 = time.nanoTimestamp();
