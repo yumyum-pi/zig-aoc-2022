@@ -3,6 +3,7 @@ pub const RangeU8 = struct { Start: u8, End: u8 };
 const ascii_struct = struct {
     Numbers: RangeU8,
     LINEBREAK: u8,
+    SPACE: u8,
 };
 
 // Function converst string to unsigned int. Using this funtion over string ittrator
@@ -24,6 +25,7 @@ pub const ASCII = ascii_struct{
         .End = 57,
     },
     .LINEBREAK = 10,
+    .SPACE = 32,
 };
 
 // Function converts ASCII number to unsigned int
