@@ -22,7 +22,6 @@ zig build day02
 zig build day24
 zig build day25
 ```
-Replace 01 to any no. betweeen 01 to 25 to run days
 
 ### License
 
