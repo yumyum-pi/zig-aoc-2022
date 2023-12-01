@@ -1,10 +1,9 @@
 const utils = @import("utils");
 const std = @import("std");
-const Array = std.ArrayList;
+const Allocator = std.mem.Allocator;
 const print = std.debug.print;
 
-const DIR_LIST = @import("./dir_list.zig");
-const DIR_LIST_TYPE = DIR_LIST.DIR_LIST_TYPE;
+const t = @import("./types.zig");
 
 const BUFFER_SIZE = 128;
 
@@ -21,13 +20,27 @@ var new_cmd: bool = false;
 var input_len: u64 = 0;
 var char: u8 = 0;
 
+var sum: u64 = 0;
+
+var currentDir: *t.dir = undefined;
+const min_size = 100000;
+
+const root_dir_string: *const []u8 = "/";
+
 pub fn solution(input: []const u8) !u64 {
     const buffer = try fba.alloc(u8, BUFFER_SIZE);
     const allocator = std.heap.page_allocator;
     var buffer_len: u8 = 0;
 
-    var dir_list = try DIR_LIST_TYPE.init(allocator);
     input_len = input.len;
+
+    // set the root dir
+    var rootDir: t.dir = t.newDirRoot("/", allocator);
+    //print("root dir ptr: {}\t", .{&rootDir});
+    print("root dir name ptr: {}\n", .{&rootDir.name});
+    currentDir = &rootDir;
+    //print("currentDir: {any}", .{currentDir});
+    index = 7;
 
     while (index < input_len) {
         char = input[index];
@@ -43,7 +56,8 @@ pub fn solution(input: []const u8) !u64 {
                     // $ cd
                     99 => {
                         // parse cmd
-                        try parse_cd(buffer, buffer_len, &dir_list);
+                        try parse_cd(buffer, buffer_len);
+                        //print("root dir name ptr: {}\n", .{&rootDir.name});
                     },
                     // $ ls
                     108 => {
@@ -52,12 +66,12 @@ pub fn solution(input: []const u8) !u64 {
                     // dir directory name
                     114 => {
                         // parse dr
-                        //parse_dir(buffer, buffer_len);
+                        try parse_dir(buffer, buffer_len, allocator);
                     },
                     // file size
                     else => {
                         // parse file
-                        // parse_file(buffer, buffer_len);
+                        //parse_file(buffer, buffer_len);
                     },
                 }
                 reset_line(buffer, &buffer_len);
@@ -72,7 +86,7 @@ pub fn solution(input: []const u8) !u64 {
     }
 
     //print("data:{s}\nlen:{}, cap:{}\n", .{ dir_list.data, dir_list.len, dir_list.cap });
-    return 0;
+    return sum;
 }
 
 // rest the line state
@@ -82,21 +96,33 @@ fn reset_line(buffer: []u8, buffer_len: *u8) void {
     new_cmd = false;
 }
 
-fn parse_cd(buffer: []u8, buffer_len: u8, dir_list: *DIR_LIST_TYPE) !void {
+fn parse_cd(buffer: []u8, buffer_len: u8) !void {
     // $ cd
     // a way to store this info
     if (buffer[5] == 46 and buffer[6] == 46) {
-        //print("cd:back\n", .{});
+        print("back \n", .{});
+        currentDir = currentDir.parent.?;
         return;
     }
-    const no = try dir_list.push(&buffer[5..buffer_len]);
-    _ = no;
+    var name = buffer[5..buffer_len];
+
+    // search for the sub dir
+    var subdir = currentDir.sub_dir.get(name);
+
+    print("cd:{s}\n", .{name});
+    // check if sub dir exit
+    currentDir = &subdir.?;
 }
 
-fn parse_dir(buffer: []u8, buffer_len: u8) void {
+fn parse_dir(buffer: []u8, buffer_len: u8, allocator: Allocator) !void {
+    const name = buffer[4..buffer_len];
     // dir
     // a way to store this info
-    print("dir:{s}\n", .{buffer[4..buffer_len]});
+    print("dir:{s}\t", .{name});
+
+    print("current dir ptr: {}\t", .{&currentDir});
+    print("current dir name ptr: {}\n", .{&currentDir.name});
+    try t.addDir(currentDir, name, allocator);
 }
 
 fn parse_file(buffer: []u8, buffer_len: u8) void {
@@ -119,6 +145,9 @@ fn parse_file(buffer: []u8, buffer_len: u8) void {
         i += 1;
     }
 
+    if (size > min_size) {
+        sum += size;
+    }
     // 4060174 j
     // a way to store this info
     print("file:{s} - size:{d}\n", .{ buffer[i..buffer_len], size });
