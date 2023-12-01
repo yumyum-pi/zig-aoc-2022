@@ -33,12 +33,11 @@ pub const File_Explorer = struct {
     allocator: Allocator,
 
     pub fn addFile(self: *File_Explorer, name: string, size: u64) !void {
-        const parent_index = 0;
         var n = try self.allocator.alloc(u8, name.len);
         @memcpy(n[0..], name);
 
         var file = File{
-            .parent_index = parent_index,
+            .parent_index = self.current_dir,
             .size = size,
             .name = n,
         };
@@ -58,7 +57,6 @@ pub const File_Explorer = struct {
         } else {
             std.os.exit(8);
         }
-        // if index is correct , change current dir to index
     }
 
     pub fn back(self: *File_Explorer) void {
@@ -92,10 +90,11 @@ pub const File_Explorer = struct {
     }
 
     pub fn calcSize(self: *File_Explorer) u64 {
-        var dir_index = self.dir_list.items.len - 1;
+        var dir_index = self.dir_list.items.len;
         var sum: u64 = 0;
 
         while (dir_index > 0) {
+            dir_index -= 1;
             // calcuate the file size
             for (self.dir_list.items[dir_index].file_index_list.items) |file_index| {
                 self.dir_list.items[dir_index].size += self.file_list.items[file_index].size;
@@ -105,11 +104,6 @@ pub const File_Explorer = struct {
             for (self.dir_list.items[dir_index].dir_list.items) |subdir_index| {
                 self.dir_list.items[dir_index].size += self.dir_list.items[subdir_index].size;
             }
-
-            if (self.dir_list.items[dir_index].size <= 100000) {
-                sum += self.dir_list.items[dir_index].size;
-            }
-            dir_index -= 1;
         }
 
         return sum;
