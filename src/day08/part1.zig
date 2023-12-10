@@ -17,12 +17,16 @@ var size: u64 = 0;
 var trimed_r: u64 = 0;
 var trimed_c: u64 = 0;
 var input: []const u8 = undefined;
+
+var top_list: []u8 = undefined;
+var bottom_list: []u8 = undefined;
+var right_list: []u8 = undefined;
+var left_list: []u8 = undefined;
+
 pub fn solution(i: []const u8) !u64 {
     input = i;
     var index: u64 = 0;
-    print("\n", .{}); // just a spacer
     const allocator = std.heap.page_allocator;
-    _ = allocator;
     input_len = input.len;
 
     // calc the char in 1st row
@@ -41,6 +45,29 @@ pub fn solution(i: []const u8) !u64 {
 
     index = 0;
 
+    // access using c
+    top_list = try allocator.alloc(u8, size);
+    bottom_list = try allocator.alloc(u8, size);
+
+    // ascess using r
+    right_list = try allocator.alloc(u8, size);
+    left_list = try allocator.alloc(u8, size);
+
+    @memset(top_list, 0);
+    @memset(bottom_list, 0);
+
+    @memset(left_list, 0);
+    @memset(right_list, 0);
+
+    for (0..size) |r| {
+        top_list[r] = input[r];
+    }
+
+    for (0..size) |r| {
+        const s = size + 1;
+        left_list[r] = input[r * s];
+    }
+
     var inner: u64 = 0;
     for (1..trimed_r) |r| {
         const index_row_start = (size + 1) * r;
@@ -49,17 +76,12 @@ pub fn solution(i: []const u8) !u64 {
             index = c + index_row_start;
             if (is_visible(r, c, index)) {
                 inner += 1;
-                print(ASCI_RED ++ "{d}" ++ ASCI_REST, .{input[index] - 48});
-            } else {
-                print("{d}", .{input[index] - 48});
-            }
+            } else {}
         }
-        print("\n", .{});
     }
 
     const outer = (size - 1) * 4;
 
-    print("outer:{d}\tinner:{d}\n", .{ outer, inner });
     sum = outer + inner;
     return sum;
 }
@@ -70,9 +92,11 @@ pub fn is_visible(row_n: u64, col_n: u64, index_current: u64) bool {
     //visible = check_visibility_row(row_n, col_n);
 
     // check if visible from the top
-    visible = is_visible_row(0, row_n, col_n, index_current);
+    var visible_top = is_visible_top(col_n, index_current);
+    // check if visible from the left
+    var visible_left = is_visible_left(row_n, index_current);
     // if visible from the top then return
-    if (visible) {
+    if (visible_top or visible_left) {
         return true;
     }
 
@@ -82,9 +106,6 @@ pub fn is_visible(row_n: u64, col_n: u64, index_current: u64) bool {
         return true;
     }
 
-    // check the column only if not visible
-    //visible = check_visibility_column(row_n, col_n);
-    // check if visible from the left
     visible = is_visible_column(0, col_n, row_n, index_current);
     // if visible from the left then return
     if (visible) {
@@ -96,6 +117,9 @@ pub fn is_visible(row_n: u64, col_n: u64, index_current: u64) bool {
     return visible;
 }
 
+// TODO optimize this code
+//  possible solution
+//  - make sure
 // check vertical side: either top or bottom depending on the start and end
 fn is_visible_row(start: usize, end: usize, col_n: u64, index_current: u64) bool {
     const s = size + 1;
@@ -117,6 +141,23 @@ fn is_visible_row(start: usize, end: usize, col_n: u64, index_current: u64) bool
     return true;
 }
 
+fn is_visible_top(col_n: u64, index_current: u64) bool {
+    if (top_list[col_n] < input[index_current]) {
+        top_list[col_n] = input[index_current];
+        return true;
+    }
+
+    return false;
+}
+
+fn is_visible_left(row_n: u64, index_current: u64) bool {
+    if (left_list[row_n] < input[index_current]) {
+        left_list[row_n] = input[index_current];
+        return true;
+    }
+
+    return false;
+}
 // check horizontal side: either left or right depending on the start and end
 fn is_visible_column(start: usize, end: usize, row_n: u64, index_current: u64) bool {
     const s = size + 1;

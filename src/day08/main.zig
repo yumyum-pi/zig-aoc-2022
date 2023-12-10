@@ -19,6 +19,6 @@ pub fn main() !void {
     const end_time: i128 = time.nanoTimestamp();
     const delta: f64 = @floatFromInt(end_time - start_time);
     const ms: f64 = delta / 1000000;
-    print("time taken:\t{!d}ms\n", .{ms});
-    print("ans: {!d}\n", .{ans});
+    print("{!d}\t{d}\n", .{ ms, ans });
+    //   print("ans: {!d}\n", .{ans});
 }
