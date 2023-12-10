@@ -106,11 +106,11 @@ pub fn is_visible(row_n: u64, col_n: u64, index_current: u64) bool {
         return true;
     }
 
-    visible = is_visible_column(0, col_n, row_n, index_current);
+    //    visible = is_visible_column(0, col_n, row_n, index_current);
     // if visible from the left then return
-    if (visible) {
-        return true;
-    }
+    //   if (visible) {
+    //      return true;
+    // }
 
     // if not visible from the left check right
     visible = is_visible_column(col_n + 1, size, row_n, index_current);
